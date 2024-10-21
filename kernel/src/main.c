@@ -3,7 +3,8 @@
 #include <stdbool.h>
 #include <limine.h>
 
-#include "includes/keyboardhandler.h"
+#include "includes/terminal/terminal.h"
+#include "includes/filesystem/filesystem.h"
 
 // Set the base revision to 2, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.
@@ -85,11 +86,13 @@ void kmain(void) {
     draw_string(framebuffer, "Welcome to HelpMe OS\n"
     "This system have been developped by Lila BRANDON in 2024\n"
     "contact@lilabrandon.fr  |  https://lilabrandon.fr\n"
-    "Type 'exit' to stop your system\n", 0x0058FF00); // Couleur verte
+    "Type 'exit' to stop your system\n", start_x, &currentX, &currentY, textColor); // Couleur verte
     start_y = start_y + 8*5;
+
+    rootFileSystem = createFileSystem(8192);
     
     // Gérer le clavier
-    handle_keyboard(framebuffer);
+    handle_terminal_keyboard(framebuffer);
 
 
     // We're done, just hang...

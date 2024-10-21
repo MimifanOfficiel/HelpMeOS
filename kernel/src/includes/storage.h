@@ -5,37 +5,6 @@
 #include <stddef.h>
 #include <stdbool.h>
 
-// Define the FileAllocationTable struct
-typedef struct {
-    int32_t* table;
-    size_t size;
-} FileAllocationTable;
-
-FileAllocationTable* createFileAllocationTable(size_t size);
-void destroyFileAllocationTable(FileAllocationTable* fat);
-int allocate(FileAllocationTable* fat, size_t index, size_t length);
-int deallocate(FileAllocationTable* fat, size_t index);
-size_t getNextFreeBlock(const FileAllocationTable* fat);
-
-// Define the DirectoryTable struct
-typedef struct {
-    char* filename;
-    size_t startBlock;
-    size_t length;
-} DirectoryEntry;
-
-typedef struct {
-    DirectoryEntry* entries;
-    size_t count;
-    size_t capacity;
-} DirectoryTable;
-
-DirectoryTable* createDirectoryTable();
-void destroyDirectoryTable(DirectoryTable* dt);
-int addEntry(DirectoryTable* dt, const char* filename, size_t startBlock, size_t length);
-int removeEntry(DirectoryTable* dt, const char* filename);
-size_t findEntry(const DirectoryTable* dt, const char* filename);
-
 
 // GCC and Clang reserve the right to generate calls to the following
 // 4 functions even if they are not directly called.
