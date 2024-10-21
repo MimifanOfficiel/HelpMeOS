@@ -4,6 +4,21 @@
 #include <stddef.h>
 #include <limine.h>
 
+typedef enum {
+    CMD_CREATEFILE,
+    CMD_REMOVEFILE,
+    CMD_LISTFILES,
+
+    CMD_COUNT
+} Commands;
+
+typedef struct {
+    struct limine_framebuffer *framebuffer;
+    const char** args;
+} CommandParams;
+
+
+
 
 // Function to exit the OS
 void exit(void);
@@ -11,11 +26,9 @@ void exit(void);
 // Function to change the current directory
 void changeDirectory(const char* path);
 
-// Function to display the current directory
-void printWorkingDirectory(void);
 
-// Function to execute a command
-void executeCommand(struct limine_framebuffer* framebuffer, const char* command, const char** tokens);
+void execute_command(const char* command, CommandParams params);
+
 
 // Function to parse input command
 char** parseCommand(struct limine_framebuffer* framebuffer, const char* input, size_t* count);
@@ -23,8 +36,8 @@ char** parseCommand(struct limine_framebuffer* framebuffer, const char* input, s
 
 
 
-void _createFile(struct limine_framebuffer *framebuffer, const char** tokens);
-void _listFiles(struct limine_framebuffer *framebuffer, const char** tokens);
-void _removeFile(struct limine_framebuffer *framebuffer, const char** tokens);
+void _createFile(CommandParams params);
+void _listFiles(CommandParams params);
+void _removeFile(CommandParams params);
 
 #endif // COMMANDS_H

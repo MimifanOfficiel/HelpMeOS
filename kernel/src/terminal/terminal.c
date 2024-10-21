@@ -62,7 +62,8 @@ void handle_terminal_keyboard(struct limine_framebuffer* framebuffer) {
 
                 if(command != NULL && input_length > 0) {
                     const char** tokens = (const char**)command; // Convert the command to a const char**
-                    executeCommand(framebuffer, tokens[0], tokens); // Execute the command
+                    CommandParams params = {framebuffer, tokens};
+                    execute_command(tokens[0], params); // Execute the command
                 }
 
                 input_buffer[0] = '\0'; // Clear the input buffer

@@ -25,86 +25,111 @@ void printWorkingDirectory(void) {
 }
 
 
-void _createFile(struct limine_framebuffer* framebuffer, const char** tokens) {
-    if (tokens[1] == NULL) {
-        draw_string(framebuffer, "\nInvalid command format", start_x, &currentX, &currentY, 0xFF0000);
+void (*command_functions[CMD_COUNT])(CommandParams) = {
+    _createFile,
+    _removeFile,
+    _listFiles
+};
+
+const char *command_strings[CMD_COUNT] = {
+    "touch",
+    "rm",
+    "ls"
+};
+
+
+void execute_command(const char *command, CommandParams params) {
+    for (int i = 0; i < CMD_COUNT; i++) {
+        if (strcmp(command, command_strings[i]) == 0) {
+            command_functions[i](params); // Call the corresponding function
+            return;
+        }
+    }
+    draw_string(params.framebuffer, "\nCommand not found", start_x, &currentX, &currentY, 0xFF0000);
+}
+
+
+void _createFile(CommandParams params) {
+    
+    if (params.args[1] == NULL) {
+        draw_string(params.framebuffer, "\nInvalid command format", start_x, &currentX, &currentY, 0xFF0000);
         return;
     }
 
-    const char* filename = tokens[1];
+    const char* filename = params.args[1];
     if (filename == NULL) {
-        draw_string(framebuffer, "\nFilename not specified", start_x, &currentX, &currentY, 0xFF0000);
+        draw_string(params.framebuffer, "\nFilename not specified", start_x, &currentX, &currentY, 0xFF0000);
         return;
     }
 
     
 
     if (createFile(rootFileSystem, filename, 128) == 0) {
-        draw_string(framebuffer, "\nFile created successfully", start_x, &currentX, &currentY, 0x00FF00);
+        draw_string(params.framebuffer, "\nFile created successfully", start_x, &currentX, &currentY, 0x00FF00);
     } else {
-        draw_string(framebuffer, "\nFailed to create file", start_x, &currentX, &currentY, 0xFF0000);
+        draw_string(params.framebuffer, "\nFailed to create file", start_x, &currentX, &currentY, 0xFF0000);
     }
 }
 
 
-void _listFiles(struct limine_framebuffer *framebuffer, const char** tokens) {
+void _listFiles(CommandParams params) {
     
     if (rootFileSystem == NULL) {
-        draw_string(framebuffer, "\nFailed to access filesystem", start_x, &currentX, &currentY, 0xFF0000);
+        draw_string(params.framebuffer, "\nFailed to access filesystem", start_x, &currentX, &currentY, 0xFF0000);
         return;
     }
 
     char **fileList = listFiles(rootFileSystem);
     if (fileList == NULL) {
-        draw_string(framebuffer, "\nNo files found", start_x, &currentX, &currentY, 0xFF0000);
+        draw_string(params.framebuffer, "\nNo files found", start_x, &currentX, &currentY, 0xFF0000);
         return;
     }
 
-    draw_string(framebuffer, "\nFiles in current directory:", start_x, &currentX, &currentY, 0x00FF00);
+    draw_string(params.framebuffer, "\nFiles in current directory:", start_x, &currentX, &currentY, 0x00FF00);
     for (int i = 0; fileList[i] != NULL; i++) {
-        draw_string(framebuffer, "\n", start_x, &currentX, &currentY, textColor);
-        draw_string(framebuffer, fileList[i], start_x, &currentX, &currentY, textColor);
+        draw_string(params.framebuffer, "\n", start_x, &currentX, &currentY, textColor);
+        draw_string(params.framebuffer, fileList[i], start_x, &currentX, &currentY, textColor);
     }
 
 }
 
 
-void _removeFile(struct limine_framebuffer *framebuffer, const char** tokens) {
+void _removeFile(CommandParams params) {
     if (rootFileSystem == NULL) {
-        draw_string(framebuffer, "\nFailed to access filesystem", start_x, &currentX, &currentY, 0xFF0000);
+        draw_string(params.framebuffer, "\nFailed to access filesystem", start_x, &currentX, &currentY, 0xFF0000);
         return;
     }
 
-    const char* filename = tokens[1];
+    const char* filename = params.args[1];
     if (filename == NULL) {
-        draw_string(framebuffer, "\nFilename not specified", start_x, &currentX, &currentY, 0xFF0000);
+        draw_string(params.framebuffer, "\nFilename not specified", start_x, &currentX, &currentY, 0xFF0000);
         return;
     }
 
     if (deleteFile(rootFileSystem, filename) == 0) {
-        draw_string(framebuffer, "\nFile removed successfully", start_x, &currentX, &currentY, 0x00FF00);
+        draw_string(params.framebuffer, "\nFile removed successfully", start_x, &currentX, &currentY, 0x00FF00);
     } else {
-        draw_string(framebuffer, "\nFailed to remove file", start_x, &currentX, &currentY, 0xFF0000);
+        draw_string(params.framebuffer, "\nFailed to remove file", start_x, &currentX, &currentY, 0xFF0000);
     }
 }
 
 
 
-void executeCommand(struct limine_framebuffer* framebuffer, const char* command, const char** tokens) {
-    if (strcmp(command, "exit") == 0) {
-        exit();
-    } else if (strcmp(command, "touch") == 0) {
-        _createFile(framebuffer, tokens);
-    } else if(strcmp(command, "ls") == 0) {
-        _listFiles(framebuffer, tokens);
-    } else if (strcmp(command, "rm") == 0) {
-        _removeFile(framebuffer, tokens);
-    } else {
-        draw_string(framebuffer, "\n", start_x, &currentX, &currentY, textColor);
-        draw_string(framebuffer, prefix, start_x, &currentX, &currentY, textColor);
-        draw_string(framebuffer, "Command not found", start_x, &currentX, &currentY, 0xFF0000);
-    }
-}
+// void executeCommand(struct limine_framebuffer* framebuffer, const char* command, const char** tokens) {
+//     if (strcmp(command, "exit") == 0) {
+//         exit();
+//     } else if (strcmp(command, "touch") == 0) {
+//         _createFile(framebuffer, tokens);
+//     } else if(strcmp(command, "ls") == 0) {
+//         _listFiles(framebuffer, tokens);
+//     } else if (strcmp(command, "rm") == 0) {
+//         _removeFile(framebuffer, tokens);
+//     } else {
+//         draw_string(framebuffer, "\n", start_x, &currentX, &currentY, textColor);
+//         draw_string(framebuffer, prefix, start_x, &currentX, &currentY, textColor);
+//         draw_string(framebuffer, "Command not found", start_x, &currentX, &currentY, 0xFF0000);
+//     }
+// }
 
 char** parseCommand(struct limine_framebuffer* framebuffer, const char* input, size_t* count) {
     // Duplication sécurisée de l'entrée
