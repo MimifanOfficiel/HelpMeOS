@@ -177,7 +177,34 @@ void closeFile(File* file) {
     }
 }
 
+int readBlock(FileSystem* fs, size_t blockIndex, void* buffer, size_t length) {
+    if (blockIndex >= fs->fat->size) return -1; // Invalid block index
+    if (fs->fat->table[blockIndex] == -1) return -1; // Block not allocated
 
+    // Simulating reading data from a block
+    uint8_t* buf = (uint8_t*)buffer;
+    for (size_t i = 0; i < length; ++i) {
+        buf[i] = (uint8_t)(blockIndex + i); // Dummy data
+    }
+
+    return 0;
+}
+
+int writeBlock(FileSystem* fs, size_t blockIndex, const void* buffer, size_t length) {
+    if (blockIndex >= fs->fat->size) return -1; // Invalid block index
+    if (fs->fat->table[blockIndex] == -1) return -1; // Block not allocated
+
+    // Simulating writing data to a block
+    const uint8_t* buf = (const uint8_t*)buffer;
+    for (size_t i = 0; i < length; ++i) {
+        if (buf[i] != (uint8_t)(blockIndex + i)) return -1; // Dummy data check
+    }
+
+    return 0;
+}
+
+
+// Function to read data from a file
 int readFile(FileSystem* fs, File* file, void* buffer, size_t length) {
     if (length > file->length) return -1; // Trying to read beyond file length
 
@@ -186,23 +213,22 @@ int readFile(FileSystem* fs, File* file, void* buffer, size_t length) {
     uint8_t* buf = (uint8_t*)buffer;
 
     while (blockIndex != (size_t)-1 && bytesRead < length) {
-        // Assuming each block is of fixed size, e.g., 512 bytes
-        size_t blockSize = 512;
+        size_t blockSize = 512; // Assuming fixed-size blocks of 512 bytes
         size_t bytesToRead = (length - bytesRead > blockSize) ? blockSize : (length - bytesRead);
 
-        // Placeholder for actual block read logic
-        // This would involve reading from the block at blockIndex
-        // and copying the data into buf + bytesRead
-        // For example: readBlock(fs, blockIndex, buf + bytesRead, bytesToRead);
+        // Read the block from the filesystem
+        if (readBlock(fs, blockIndex, buf + bytesRead, bytesToRead) != 0) {
+            return -1; // Error during block read
+        }
 
         bytesRead += bytesToRead;
-        blockIndex = fs->fat->table[blockIndex];
+        blockIndex = fs->fat->table[blockIndex]; // Move to the next block
     }
 
     return (bytesRead == length) ? 0 : -1;
 }
 
-
+// Function to write data to a file
 int writeFile(FileSystem* fs, File* file, const void* buffer, size_t length) {
     if (length > file->length) return -1; // Trying to write beyond file length
 
@@ -211,17 +237,16 @@ int writeFile(FileSystem* fs, File* file, const void* buffer, size_t length) {
     const uint8_t* buf = (const uint8_t*)buffer;
 
     while (blockIndex != (size_t)-1 && bytesWritten < length) {
-        // Assuming each block is of fixed size, e.g., 512 bytes
-        size_t blockSize = 512;
+        size_t blockSize = 512; // Assuming fixed-size blocks of 512 bytes
         size_t bytesToWrite = (length - bytesWritten > blockSize) ? blockSize : (length - bytesWritten);
 
-        // Placeholder for actual block write logic
-        // This would involve writing to the block at blockIndex
-        // and copying the data from buf + bytesWritten
-        // For example: writeBlock(fs, blockIndex, buf + bytesWritten, bytesToWrite);
+        // Write the block to the filesystem
+        if (writeBlock(fs, blockIndex, buf + bytesWritten, bytesToWrite) != 0) {
+            return -1; // Error during block write
+        }
 
         bytesWritten += bytesToWrite;
-        blockIndex = fs->fat->table[blockIndex];
+        blockIndex = fs->fat->table[blockIndex]; // Move to the next block
     }
 
     return (bytesWritten == length) ? 0 : -1;

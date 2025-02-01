@@ -8,9 +8,13 @@ typedef enum {
     CMD_CREATEFILE,
     CMD_REMOVEFILE,
     CMD_LISTFILES,
+    CMD_WRITEFILE,
+    CMD_READFILE,
 
     CMD_COUNT
 } Commands;
+
+
 
 typedef struct {
     struct limine_framebuffer *framebuffer;
@@ -39,5 +43,7 @@ char** parseCommand(struct limine_framebuffer* framebuffer, const char* input, s
 void _createFile(CommandParams params);
 void _listFiles(CommandParams params);
 void _removeFile(CommandParams params);
+void _writeFile(CommandParams params);
+void _readFile(CommandParams params);
 
 #endif // COMMANDS_H

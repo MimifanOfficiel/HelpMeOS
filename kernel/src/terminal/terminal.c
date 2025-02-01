@@ -27,6 +27,13 @@ const char scancode_to_ascii[] = {
 
 // Function to handle keyboard input
 void handle_terminal_keyboard(struct limine_framebuffer* framebuffer) {
+    // Dessiner le texte
+    draw_string(framebuffer, "Welcome to HelpMe OS\n"
+    "This system have been developped by Lila BRANDON in 2024\n"
+    "contact@lilabrandon.fr  |  https://lilabrandon.fr\n"
+    "Type 'exit' to stop your system\n", start_x, &currentX, &currentY, textColor); // Couleur verte
+    start_y = start_y + 8*5;
+
     size_t last_x_positions[framebuffer->height / charSpacing]; // Array to store the last x positions of each line
     for (size_t i = 0; i < framebuffer->height / lineSize; i++) {
         last_x_positions[i] = start_x;
@@ -36,7 +43,7 @@ void handle_terminal_keyboard(struct limine_framebuffer* framebuffer) {
     uint32_t press_time = 0;
     uint32_t delay = 2300000; // Adjust this value to set the delay
 
-    char input_buffer[256] = {0}; // Buffer to store the input string
+    char input_buffer[2048] = {0}; // Buffer to store the input string
     size_t input_length = 0;
 
     draw_string(framebuffer, "\n", start_x, &currentX, &currentY, 0x000);

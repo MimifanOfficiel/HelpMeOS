@@ -5,6 +5,7 @@
 
 #include "includes/terminal/terminal.h"
 #include "includes/filesystem/filesystem.h"
+#include "includes/windows/windows.h"
 
 // Set the base revision to 2, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.
@@ -82,18 +83,16 @@ void kmain(void) {
         }
     }
 
-    // Dessiner le texte
-    draw_string(framebuffer, "Welcome to HelpMe OS\n"
-    "This system have been developped by Lila BRANDON in 2024\n"
-    "contact@lilabrandon.fr  |  https://lilabrandon.fr\n"
-    "Type 'exit' to stop your system\n", start_x, &currentX, &currentY, textColor); // Couleur verte
-    start_y = start_y + 8*5;
-
     rootFileSystem = createFileSystem(8192);
+
+    // struct Window *firstWindow = { 10, 10, 400, 300, 0xB0B0B0, 0x808080, 11, "First Window" };
+    // draw_window(framebuffer, framebuffer->width, &firstWindow);
+
+    
     
     // Gérer le clavier
     handle_terminal_keyboard(framebuffer);
-
+    
 
     // We're done, just hang...
     hcf();

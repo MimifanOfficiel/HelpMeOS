@@ -59,9 +59,13 @@ int createFile(FileSystem* fs, const char* filename, size_t length);
 int deleteFile(FileSystem* fs, const char* filename);
 File* openFile(FileSystem* fs, const char* filename);
 void closeFile(File* file);
+
+int readBlock(FileSystem* fs, size_t blockIndex, void* buffer, size_t length);
+int writeBlock(FileSystem* fs, size_t blockIndex, const void* buffer, size_t length);
 int readFile(FileSystem* fs, File* file, void* buffer, size_t length);
 int writeFile(FileSystem* fs, File* file, const void* buffer, size_t length);
 char** listFiles(FileSystem* fs);
+
 
 
 

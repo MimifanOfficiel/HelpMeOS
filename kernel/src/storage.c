@@ -1,7 +1,7 @@
 #include "includes/storage.h"
 #include "includes/string.h"
 
-#define BUFFER_SIZE (1024 * 1024) // 1 MB
+#define BUFFER_SIZE (4096 * 4096) // 16 MB
 
 static uint8_t buffer[BUFFER_SIZE]; // Static buffer
 static size_t used_offset = 0;      // Tracks used memory
