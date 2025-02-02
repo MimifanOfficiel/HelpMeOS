@@ -30,6 +30,52 @@ void draw_string(struct limine_framebuffer *framebuffer, const char *str, size_t
     }
 }
 
+void itoa(int num, char *str, int base) {
+    int i = 0;
+    int is_negative = 0;
+
+    // Handle 0 explicitly, otherwise empty string is printed for 0
+    if (num == 0) {
+        str[i++] = '0';
+        str[i] = '\0';
+        return;
+    }
+
+    // In standard itoa(), negative numbers are handled only with base 10
+    if (num < 0 && base == 10) {
+        is_negative = 1;
+        num = -num;
+    }
+
+    // Process individual digits
+    while (num != 0) {
+        int rem = num % base;
+        str[i++] = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
+        num = num / base;
+    }
+
+    // Append negative sign for negative numbers
+    if (is_negative) {
+        str[i++] = '-';
+    }
+
+    str[i] = '\0'; // Append string terminator
+
+    // Reverse the string
+    for (int j = 0, k = i - 1; j < k; j++, k--) {
+        char temp = str[j];
+        str[j] = str[k];
+        str[k] = temp;
+    }
+}
+
+
+void draw_int(struct limine_framebuffer *framebuffer, int num, size_t start_x, size_t *x, size_t *y, uint32_t color) {
+    char str[12]; // 12 caractères maximum pour un entier 32 bits
+    itoa(num, str, 10); // Convertir l'entier en chaîne de caractères
+    draw_string(framebuffer, str, start_x, x, y, color); // Dessiner la chaîne de caractères
+}
+
 
 void clear_screen(struct limine_framebuffer *framebuffer) {
     volatile uint32_t *fb_ptr = framebuffer->address;

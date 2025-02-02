@@ -192,13 +192,11 @@ int readBlock(FileSystem* fs, size_t blockIndex, void* buffer, size_t length) {
 
 int writeBlock(FileSystem* fs, size_t blockIndex, const void* buffer, size_t length) {
     if (blockIndex >= fs->fat->size) return -1; // Invalid block index
-    if (fs->fat->table[blockIndex] == -1) return -1; // Block not allocated
+    if (fs->fat->table[blockIndex] == (size_t)-1) return -1; // Block not allocated
 
     // Simulating writing data to a block
     const uint8_t* buf = (const uint8_t*)buffer;
-    for (size_t i = 0; i < length; ++i) {
-        if (buf[i] != (uint8_t)(blockIndex + i)) return -1; // Dummy data check
-    }
+
 
     return 0;
 }

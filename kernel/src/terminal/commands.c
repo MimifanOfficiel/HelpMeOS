@@ -101,74 +101,72 @@ void _removeFile(CommandParams params) {
 
 void _writeFile(CommandParams params) {
 
-    draw_string(params.framebuffer, "\nStarting writeFile command", start_x, &currentX, &currentY, 0x9F9F9F);
-
     if (rootFileSystem == NULL) {
         draw_string(params.framebuffer, "\nFailed to access filesystem", start_x, &currentX, &currentY, 0xFF0000);
         return;
     }
 
-    draw_string(params.framebuffer, "\nAccessed filesystem", start_x, &currentX, &currentY, 0x9F9F9F);
-    draw_string(params.framebuffer, "\nFilename: ", start_x, &currentX, &currentY, 0x9F9F9F);
-    draw_string(params.framebuffer, params.args[1], start_x, &currentX, &currentY, 0x9F9F9F);
 
-    // Combine all arguments from args[2] onwards into a single content string
-    size_t content_length = 0;
-    for (int i = 2; params.args[i] != NULL; i++) {
-        draw_string(params.framebuffer, "\nArgument: ", start_x, &currentX, &currentY, 0x9F9F9F);
-        draw_string(params.framebuffer, params.args[i], start_x, &currentX, &currentY, 0x9F9F9F);
-        draw_string(params.framebuffer, "\nLength of arg ", start_x, &currentX, &currentY, 0x9F9F9F);
-        draw_string(params.framebuffer, i, start_x, &currentX, &currentY, 0x9F9F9F);
-        draw_string(params.framebuffer, ": ", start_x, &currentX, &currentY, 0x9F9F9F);
-        draw_string(params.framebuffer, strlen(params.args[i]), start_x, &currentX, &currentY, 0x9F9F9F);
-        content_length += strlen(params.args[i]) + 1; // +1 for space or null terminator
-    }
+    if(params.argc < 2) {
 
-    draw_string(params.framebuffer, "\nContent length: ", start_x, &currentX, &currentY, 0x9F9F9F);
-
-    char* content = malloc(content_length);
-    if (content == NULL) {
-        draw_string(params.framebuffer, "\nMemory allocation failed", start_x, &currentX, &currentY, 0xFF0000);
-        return;
-    }
-
-    const char* filename = params.args[1];
-    if (filename == NULL || content[0] == '\0') {
         draw_string(params.framebuffer, "\nInvalid command format", start_x, &currentX, &currentY, 0xFF0000);
-        free(content);
         return;
-    }
+
+    } else {
+
+        // Combine all arguments from args[2] onwards into a single content string
+        size_t content_length = 0;
+        for(int i = 2; i < params.argc; i++) {
+            content_length += strlen(params.args[i]) + 1;
+        }
+
+
+        char* content = malloc(content_length);
+        if (content == NULL) {
+            draw_string(params.framebuffer, "\nMemory allocation failed", start_x, &currentX, &currentY, 0xFF0000);
+            return;
+        }
+
+        content[0] = '\0'; // Initialize the content string
+        for (int i = 2; i < params.argc; i++) {
+            strcat(content, params.args[i]);
+            if (i < params.argc - 1) {
+                strcat(content, " "); // Add space between arguments
+            }
+        }
+
+        const char* filename = params.args[1];
+        if (filename == NULL || content[0] == '\0') {
+            draw_string(params.framebuffer, "\nInvalid command format", start_x, &currentX, &currentY, 0xFF0000);
+            free(content);
+            return;
+        }
     
 
-    content[0] = '\0'; // Initialize the content string
-    for (int i = 2; params.args[i] != NULL; i++) {
-        strcat(content, params.args[i]);
-        if (params.args[i + 1] != NULL) {
-            strcat(content, " "); // Add space between arguments
+        File* file = openFile(rootFileSystem, filename);
+        if (file == NULL) {
+            draw_string(params.framebuffer, "\nFile not found", start_x, &currentX, &currentY, 0xFF0000);
+            free(content);
+            return;
         }
-    }
 
-    draw_string(params.framebuffer, "\n", start_x, &currentX, &currentY, textColor);
+        if (file->length == 0 || file->startBlock == (size_t)-1) {
+            draw_string(params.framebuffer, "\nFile has zero length, cannot write", start_x, &currentX, &currentY, 0xFF0000);
+            free(content);
+            return;
+        }
 
 
-    draw_string(params.framebuffer, "\nOpening file...", start_x, &currentX, &currentY, 0x9F9F9F);
 
-    File* file = openFile(rootFileSystem, filename);
-    if (file == NULL) {
-        draw_string(params.framebuffer, "\nFile not found", start_x, &currentX, &currentY, 0xFF0000);
+
+        if (writeFile(rootFileSystem, file, content, strlen(content)) == 0) {
+            draw_string(params.framebuffer, "\nFile written successfully", start_x, &currentX, &currentY, 0x00FF00);
+        } else {
+            draw_string(params.framebuffer, "\nFailed to write file", start_x, &currentX, &currentY, 0xFF0000);
+        }
+
         free(content);
-        return;
     }
-
-    draw_string(params.framebuffer, "\nWriting to file...", start_x, &currentX, &currentY, 0x9F9F9F);
-
-    if (writeFile(rootFileSystem, file, content, strlen(content)) == 0) {
-        draw_string(params.framebuffer, "\nFile written successfully", start_x, &currentX, &currentY, 0x00FF00);
-    } else {
-        draw_string(params.framebuffer, "\nFailed to write file", start_x, &currentX, &currentY, 0xFF0000);
-    }
-
-    free(content);
 }
 
 

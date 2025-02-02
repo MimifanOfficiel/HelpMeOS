@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "textedition.h": "c"
+        "textedition.h": "c",
+        "string.h": "c"
     }
 }

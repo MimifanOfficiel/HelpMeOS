@@ -19,7 +19,9 @@ typedef enum {
 typedef struct {
     struct limine_framebuffer *framebuffer;
     const char** args;
+    int argc;
 } CommandParams;
+
 
 
 

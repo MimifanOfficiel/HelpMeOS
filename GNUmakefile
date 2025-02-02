@@ -15,6 +15,7 @@ override IMAGE_NAME := HelpMeOS-$(KARCH)
 
 .PHONY: all
 all: $(IMAGE_NAME).iso
+#	qemu-system-x86_64.exe  -cdrom $(IMAGE_NAME).iso
 
 .PHONY: all-hdd
 all-hdd: $(IMAGE_NAME).hdd
